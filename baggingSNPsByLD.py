@@ -8,39 +8,46 @@ import getopt
 import os
 #use .python-2.7.8-sqlite3-rtrees
 #python ../bin/eQTL/baggingSNPsByLD.py 22 0.8 199 ../data/pairwiseR2/ ../data/smallestPvalue.sorted.k1.folder/
+
 CHR = str(sys.argv[1])
 rsquaredCutOff = float(sys.argv[2])
 printOutUnit = int(sys.argv[3])
 allRsquaredFolder = str(sys.argv[4]) #/home/unix/wcchou/gsapWenChi/gautvik/data/pairwiseR2
 allSmallesteQTLPvalueFolder = str(sys.argv[5]) #/home/unix/wcchou/gsapWenChi/gautvik/data/smallestPvalue.sorted.k1.folder
-#def main(argv):
-#   CHR = ''
-#   rsquaredCutOff = ''
-#   printOutUnit = ''
-#   try:
-#      opts, args = getopt.getopt(argv,"hc:r:p:",["chromosome=","rsquaredCutOff=","printOutUnit="])
-#   except getopt.GetoptError:
-#      print 'baggingByLD.print.arg.py -c <chromosome> -r <rsquaredCutOff> -p <printOutUnit>'
-#      sys.exit(2)
-#   for opt, arg in opts:
-#      if opt == '-h':
-#         print 'baggingByLD.print.arg.py -c <chromosome> -r <rsquaredCutOff> -p <printOutUnit>'
-#         sys.exit()
-#      elif opt in ("-c", "--chromosome"):
-#         CHR = arg
-#      elif opt in ("-r", "--rsquaredCutOff"):
-#         rsquaredCutOff = arg
-#      elif opt in ("-p", "--printOutUnit"):
-#         printOutUnit = arg
-#   print 'Running Chromosome ', CHR
-#   print 'with rsquaredCutOff ', rsquaredCutOff
-#   print 'with printOutUnit ', printOutUnit
+#CHR = ''
+#rsquaredCutOff = ''
+#printOutUnit = ''
+#allRsquaredFolder = ''
+#allSmallesteQTLPvalueFolder = ''
+#try:
+#    opts, args = getopt.getopt(sys.argv,"hc:r:p:dr:de:",["chromosome=","rsquaredCutOff=","printOutUnit=","allRsquaredFolder=","allSmallesteQTLPvalueFolder="])
+#except getopt.GetoptError:
+#    print 'baggingByLD.print.arg.py -c <chromosome> -r <rsquaredCutOff> -p <printOutUnit> -dr <allRsquaredFolder> -de <allSmallesteQTLPvalueFolder>'
+#    sys.exit(2)
+#for opt, arg in opts:
+#    if opt == '-h':
+#        print 'baggingByLD.print.arg.py -c <chromosome> -r <rsquaredCutOff> -p <printOutUnit> -dr <allRsquaredFolder> -de <allSmallesteQTLPvalueFolder>'
+#        sys.exit()
+#    elif opt in ("-c", "--chromosome"):
+#        CHR = arg
+#    elif opt in ("-r", "--rsquaredCutOff"):
+#        rsquaredCutOff = arg
+#    elif opt in ("-p", "--printOutUnit"):
+#        printOutUnit = arg
+#    elif opt in ("-dr", "--allRsquaredFolder"):
+#        allRsquaredFolder = arg
+#    elif opt in ("-de", "--allSmallesteQTLPvalueFolder"):
+#        allSmallesteQTLPvalueFolder = arg
+print 'Running Chromosome ', CHR
+print 'with rsquaredCutOff ', rsquaredCutOff
+print 'with printOutUnit ', printOutUnit
+print 'using R2 files at', allRsquaredFolder
+print 'using eQTL pvalue files at', allSmallesteQTLPvalueFolder
 
 
 ## 1. load eQTL, oneFile and twofile merged rsquare table data
 eqtlPvalue_hash = {}
 eQTLFileName = 'CHR%s.cis.gz.smallestPvalue.sorted.k1' % CHR
-#with open('/Volumes/Seagate3TB/orchestraBackup.081716/gautvik.eQTL/results/111314/filesForeQTL.043015/completedExtraction/completedExtraction2/eQTL.cis/smallestPvalue.sorted.k1.folder/CHR%s.cis.gz.smallestPvalue.sorted.k1' % CHR) as f:
 with open(os.path.join(allSmallesteQTLPvalueFolder, eQTLFileName)) as f:
     for line in f:
 	(key, val, tmp) = line.split()
@@ -100,9 +107,12 @@ while len(eqtlPvalue_hash) > 1:
         bagOutFile = open('./bagSNP.chr%s.print.txt' % CHR, 'a')
         for item in bag:
             bagOutFile.write("%s\n" % ' '.join(item))
+        bagOutFile.close()
         pvalueOutFile = open('./bagPvalue.chr%s.print.txt' % CHR, 'a')
         for item in pvalue:
             pvalueOutFile.write("%s\n" % item)
+        bagOutFile.close()
+        pvalueOutFile.close()
         bag = [[] for i in range(0)]
         pvalue = []
         bagi = 0
@@ -117,3 +127,5 @@ if (bagi < printOutUnit) and (bagi > 0):
     pvalueOutFile = open('./bagPvalue.chr%s.print.txt' % CHR, 'a')
     for item in pvalue:
         pvalueOutFile.write("%s\n" % item)
+    bagOutFile.close()
+    pvalueOutFile.close()
