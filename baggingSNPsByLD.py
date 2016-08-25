@@ -65,7 +65,8 @@ for file in pairwiseR2Files:
 	with gzip.open(file,'r') as fin:
 		for line in fin:
 			(pos1, pos2, r2) = line.split()
-			if r2 > rsquaredCutOff:
+			r2 = float(r2)
+			if r2 >= rsquaredCutOff:
 				position1.append(pos1)
 				position2.append(pos2)
 
