@@ -1,23 +1,18 @@
 #!/usr/bin/python
-#CHR=sys.argv[0]
-##args <- commandArgs(TRUE)
-##eQTLPvaluePath <- args[1]
-##additiveSumDir <- args[2]
-##rDataPath <- args[3]
-##r2cutoff <- as.numeric(args[4])
-#
 import sys
 import csv
 import re
 import glob
 import gzip
-#import numpy as np
-#import pandas as pd
 import getopt
-
+import os
+#use .python-2.7.8-sqlite3-rtrees
+#python ../bin/eQTL/baggingSNPsByLD.py 22 0.8 199 ../data/pairwiseR2/ ../data/smallestPvalue.sorted.k1.folder/
 CHR = str(sys.argv[1])
 rsquaredCutOff = float(sys.argv[2])
 printOutUnit = int(sys.argv[3])
+allRsquaredFolder = str(sys.argv[4]) #/home/unix/wcchou/gsapWenChi/gautvik/data/pairwiseR2
+allSmallesteQTLPvalueFolder = str(sys.argv[5]) #/home/unix/wcchou/gsapWenChi/gautvik/data/smallestPvalue.sorted.k1.folder
 #def main(argv):
 #   CHR = ''
 #   rsquaredCutOff = ''
@@ -44,71 +39,37 @@ printOutUnit = int(sys.argv[3])
 
 ## 1. load eQTL, oneFile and twofile merged rsquare table data
 eqtlPvalue_hash = {}
-with open('/Volumes/Seagate3TB/orchestraBackup.081716/gautvik.eQTL/results/111314/filesForeQTL.043015/completedExtraction/completedExtraction2/eQTL.cis/smallestPvalue.sorted.k1.folder/CHR%s.cis.gz.smallestPvalue.sorted.k1' % CHR) as f:
+eQTLFileName = 'CHR%s.cis.gz.smallestPvalue.sorted.k1' % CHR
+#with open('/Volumes/Seagate3TB/orchestraBackup.081716/gautvik.eQTL/results/111314/filesForeQTL.043015/completedExtraction/completedExtraction2/eQTL.cis/smallestPvalue.sorted.k1.folder/CHR%s.cis.gz.smallestPvalue.sorted.k1' % CHR) as f:
+with open(os.path.join(allSmallesteQTLPvalueFolder, eQTLFileName)) as f:
     for line in f:
 	(key, val, tmp) = line.split()
 	key = re.sub(r"^.*:", "", key)
 	eqtlPvalue_hash[str(key)] = float(val)
 
-#smallestValue = min(eqtlPvalue_hash.values())
-#keyWithSmallestValue = min(eqtlPvalue_hash, key=eqtlPvalue_hash.get)
-
-#for x in eqtlPvalue_hash:
-#    print (x)
-#    print (eqtlPvalue_hash[x])
-
-#rsquared_hash = {}
+## 2. load all R2 files of the given chromosome
 position1 = []
 position2 = []
-pairwiseR2oneFiles = glob.glob('/Volumes/Seagate3TB/orchestraBackup.081716/gautvik.eQTL/results/111314/pairwiseR2/pairwiseR2.oneFile/chr%s.*.impute2.r2.gz.gt0.4.gz' % CHR)
-#print pairwiseR2oneFiles
-for file in pairwiseR2oneFiles:
+pfiles_1 = glob.glob('%s/*/*chr%s.*.gz' % (allRsquaredFolder, CHR))
+pfiles_2 = glob.glob('%s/*/chr%s/*chr%s.*.gz' % (allRsquaredFolder, CHR, CHR))
+pairwiseR2Files = pfiles_1 + pfiles_2
+for file in pairwiseR2Files:
 	print file
 	with gzip.open(file,'r') as fin:
 		for line in fin:
 			(pos1, pos2, r2) = line.split()
 			if r2 > rsquaredCutOff:
-				#positions = (pos1, pos2)
-				#rsquared_hash[" ".join(positions)] = float(r2)
 				position1.append(pos1)
 				position2.append(pos2)
 
-pairwiseR2twoFiles = glob.glob('/Volumes/Seagate3TB/orchestraBackup.081716/gautvik.eQTL/results/111314/pairwiseR2/pairwiseR2.twoFiles/chr%s/chr%s.*.chr%s.*.r2.gz' % (CHR, CHR, CHR))
-#print pairwiseR2oneFiles
-for file in pairwiseR2twoFiles:
-	print file
-	with gzip.open(file,'r') as fin:
-		for line in fin:
-			(pos1, pos2, r2) = line.split()
-			if r2 > 0.8:
-				#positions = (pos1, pos2)
-				#rsquared_hash[" ".join(positions)] = float(r2)
-				position1.append(pos1)
-				position2.append(pos2)
-#	iter_csv = pd.read_csv(file, iterator=True, chunksize=1000, compression='gzip',  header=0, sep=' ')
-#	df_one = pd.concat([chunk[chunk.ix[:,2] > 0.8] for chunk in iter_csv])
-#	df_all = pd.concat([df_all, df_one])
-
-#print "eQTL Length : %d" % len (eqtlPvalue_hash)
-#print "position1 Length : %d" % len (position1)
-#print "position2 Length : %d" % len (position2)
-#print df_all.shape
-
-#for x in eqtlPvalue_hash:
-#    print (x)
-#    print (eqtlPvalue_hash[x])
-
-
-#bag = [[] for i in range(len(eqtlPvalue_hash))]
+## 3. bagging
 bag = [[] for i in range(0)]
 pvalue = []
 bagi = 0
 unitBagi = 0
 while len(eqtlPvalue_hash) > 1:
-#while bagi < 10:
     if bagi >= len(bag):
             bag.append([])
-    #bag[bagi] = []
     rsquaredPositions = []
     smallestValue = min(eqtlPvalue_hash.values())
     positionWithSmallestValue = min(eqtlPvalue_hash, key=eqtlPvalue_hash.get) # the position with smallest eQTL pvalue
@@ -121,13 +82,8 @@ while len(eqtlPvalue_hash) > 1:
     indices_position2 = [i for i, x in enumerate(position2) if x == positionWithSmallestValue]
     if len(indices_position1) > 0:
         rsquaredPositions.extend([ position2[index] for index in indices_position1 ])
-#        print [ position1[index] for index in indices_position1 ]
-#        print [ position2[index] for index in indices_position1 ]
     if len(indices_position2) > 0:
         rsquaredPositions.extend([ position1[index] for index in indices_position2 ])
-#        print [ position2[index] for index in indices_position2 ]
-#        print [ position1[index] for index in indices_position2 ]
-#    rsquaredPositions.append(positionWithSmallestValue)
     rsquaredPositions.insert(0, positionWithSmallestValue)
     pvalue.append(smallestValue)
     allIndices = indices_position1 + indices_position2
@@ -161,4 +117,3 @@ if (bagi < printOutUnit) and (bagi > 0):
     pvalueOutFile = open('./bagPvalue.chr%s.print.txt' % CHR, 'a')
     for item in pvalue:
         pvalueOutFile.write("%s\n" % item)
-
