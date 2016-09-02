@@ -83,9 +83,9 @@ while len(eqtlPvalue_hash) > 1:
     positionWithSmallestValue = min(eqtlPvalue_hash, key=eqtlPvalue_hash.get) # the position with smallest eQTL pvalue
     print ("\nbagi: %s" % (bagi+unitBagi*(printOutUnit+1)))
     print "eQTLpvalue Length : ", len(eqtlPvalue_hash)
-    print "position1 Length  : ", len(position1)
-    print "position2 Length  : ", len(position2)
-    print ("pos: %s; pvalue: %s" % (positionWithSmallestValue, smallestValue))
+#    print "position1 Length  : ", len(position1)
+#    print "position2 Length  : ", len(position2)
+#    print ("pos: %s; pvalue: %s" % (positionWithSmallestValue, smallestValue))
     indices_position1 = [i for i, x in enumerate(position1) if x == positionWithSmallestValue]
     indices_position2 = [i for i, x in enumerate(position2) if x == positionWithSmallestValue]
     if len(indices_position1) > 0:
@@ -103,7 +103,7 @@ while len(eqtlPvalue_hash) > 1:
             bag[bagi].append(k)
             eqtlPvalue_hash.pop(k, None)
     print "Length of rsquaredPositions: ", len(rsquaredPositions)
-    print "Length of this bag: ", len(bag[bagi])
+#    print "Length of this bag: ", len(bag[bagi])
     if (bagi == printOutUnit):
         bagOutFile = open('./bagSNP.chr%s.print.txt' % CHR, 'a')
         for item in bag:
