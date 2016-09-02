@@ -16,7 +16,7 @@ for CHR in {21..1}; do echo "#! /bin/bash
 #$ -o bagging.${CHR}.sh.out
 source /broad/software/scripts/useuse;
 reuse -q .python-2.7.8-sqlite3-rtrees
-python ../bin/eQTL/baggingSNPsByLD.py $CHR 0.8 199 ../data/pairwiseR2/ ../data/smallestPvalue.sorted.k1.folder/;
+python ../bin/eQTL/baggingSNPsByLD.py $CHR 0.8 199 ../data/pairwiseR2/ ../data/smallestPvalue.sorted.k1.folder/
 "> bagging.${CHR}.sh
 done
 
