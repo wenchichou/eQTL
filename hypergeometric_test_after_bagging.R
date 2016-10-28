@@ -29,7 +29,7 @@ list.files()
 dirBagging <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/"
 sig.bagSNP.all <- list()
 sig.bagPvalue.all <- NULL
-sigEQTLpvalueCutoff <- < 10e-8 # 10e-8 is 0.0000001; 1e-8 is 0.00000001
+sigEQTLpvalueCutoff <- 1e-8 # 10e-8 is 0.0000001; 1e-8 is 0.00000001
 for(CHR in seq(1,22,1)){
 	bagSNP.CHR.path <- paste(dirBagging,"bagSNP.chr",CHR,".print.txt2",sep="")
 	bagPvalue.CHR.path <- paste(dirBagging,"bagPvalue.chr",CHR,".print.txt",sep="")
@@ -53,8 +53,8 @@ length(sig.bagPvalue.all)
 #dim(GWAS)
 
 #GWAS_LSBMD <- read.table("C:\\Users\\User\\Desktop\\eQTL_project\\openGWAS\\LSBMD.ALLCHR.CHRPOS.gz")
-GWAS <- read.table("/home/unix/wcchou/gsapWenChi/gautvik/data/gwas.2.5m/ALZ_CHRPOS_PVALUE_done.gz", header=T)
-colnames(GWAS)[2] <- "pvalue"
+GWAS <- read.table("/home/unix/wcchou/gsapWenChi/gautvik/data/gwas.2.5m/LSBMD_CHRPOS_PVALUE_done.gz", header=F)
+colnames(GWAS) <- c("CHR.POS","pvalue")
 head(GWAS)
 dim(GWAS)
 
@@ -70,12 +70,17 @@ intersect_sigeQTL_GWAS  <- intersect(unlist(sig.bagSNP.all), GWAS$CHR.POS)
 length(intersect_sigeQTL_GWAS)
 
 overlappedGWAS <- GWAS[match(intersect_sigeQTL_GWAS, GWAS$CHR.POS),]
+
 overlappedGWAS.bag <- NULL
 for(i in overlappedGWAS[,1]){
-	res <- lapply(sig.bagSNP.all, function(ch) grep(i, ch))
-	bagIndex <- which(sapply(res, function(x) length(x) > 0))
+	#res <- lapply(sig.bagSNP.all, function(ch) grep(i, ch))
+	res <- lapply(sig.bagSNP.all, function(ch) match(i, ch))
+	#bagIndex <- which(sapply(res, function(x) length(x) > 0))
+	bagIndex <- which(!is.na(res))
 	overlappedGWAS.bag <- c(overlappedGWAS.bag, bagIndex)
 }
+length(overlappedGWAS.bag)
+dim(overlappedGWAS)
 
 overlappedGWAS <- (data.frame(overlappedGWAS, bag=overlappedGWAS.bag))
 
@@ -117,6 +122,43 @@ if(nrow(overlappedGWAS.bagged.multi)>0){
 
 ##3. Compare the size of GWAS and eQTL and conduct hypergeometric test
 
+sig_eQTL <- subset(eQTL, eQTL$pvalue < 10e-8)
+head(sig_eQTL)
+dim(sig_eQTL)
+intersect_sigeQTL_GWAS  <- intersect(sig_eQTL$chrPos, GWAS$chrPos)
+
+q <- length(intersect_sigeQTL_GWAS)
+q
+x=q
+#m  
+#the number of white balls in the urn.
+#(eQTL SNPs with p-value <= 10-8 )
+m <- length(which(eQTL$pvalue <= 10e-8))
+m
+#n  
+#the number of black balls in the urn.
+#(eQTL SNPs with p-value > 10-8 )
+n <- length(which(eQTL$pvalue > 10e-8))
+n
+m+n
+dim(eQTL)
+#k  
+#the number of balls drawn from the urn.
+#(GWAS SNPs with p-value < 10-5 and exclude SNPs not in eQTL results)
+inter_GWAS <- intersect(eQTL$chrPos, GWAS$chrPos)
+inter_GWAS
+k <- length(inter_GWAS)
+
+hyperPvalue[i]<-1-phyper(x, m, n, k, lower.tail = T)
+c(x,m,n,k)
+}
+
+
+names(hyperPvalue)=sub("_lessThan10-5.chrPosition.pvalue", "", GWASFileList)
+sort(hyperPvalue)
+
+
+write.csv(sort(hyperPvalue), file="C://Users//User//Desktop//eQTL_enrichment//data//result_GWAS_10-8-10.csv")
 
 
 
