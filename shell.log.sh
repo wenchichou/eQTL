@@ -12,7 +12,8 @@ for CHR in {1..22}; do
 done 
 
 reuse UGER
-ish
+#ish
+qrsh -q interactive -l h_vmem=32g
 cd /home/unix/wcchou/gsapWenChi/gautvik/results
 use R-3.3
 
