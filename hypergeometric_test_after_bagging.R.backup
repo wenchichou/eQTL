@@ -1,26 +1,17 @@
-#!/usr/bin/env Rscript
-args = commandArgs(trailingOnly=TRUE)
 ## GWAS preprocessing in cluster, then set GWAS P value cut off in R program. After it, bagging GWAS
 ## At the end, conduct hypergeometric test
 ## GWAS data should have chr:pos and p value, bagging results should be revised to chr:pos
 
+
 #========================================
 # Configure these parameters
 #========================================
-#dirBagging <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/"
-dirBagging <- args[1]
+dirBagging <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/"
 #GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/data/gwas.2.5m/LSBMD_CHRPOS_PVALUE_done.gz"
-GWASfilePath <- args[2]  
-#sigEQTLpvalueCutoff <- 1e-8 # 10e-8 is 0.0000001; 1e-8 is 0.00000001
-sigEQTLpvalueCutoff <- args[3]
-sigEQTLpvalueCutoff <- as.numeric(as.character(sigEQTLpvalueCutoff))
-#GWASpvalueRangeSmall <- 1e-6
-GWASpvalueRangeSmall <- args[4]
-GWASpvalueRangeSmall <- as.numeric(as.character(GWASpvalueRangeSmall))
-#GWASpvalueRangeLarge <- 1e-1000
-GWASpvalueRangeLarge <- args[5]
-GWASpvalueRangeLarge <- as.numeric(as.character(GWASpvalueRangeLarge))
-outputFilePath <- args[6]
+GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/data/gwas.2.5m/ALZ_CHRPOS_PVALUE_done.gz"
+sigEQTLpvalueCutoff <- 1e-8 # 10e-8 is 0.0000001; 1e-8 is 0.00000001
+GWASpvalueRangeSmall <- 1e-6
+GWASpvalueRangeLarge <- 1e-1000
 #========================================
 ## 1. Load in bagging files, eQTL and GWAS dataset
 
@@ -71,7 +62,7 @@ GWAS <- read.table(GWASfilePath, header=T)
 colnames(GWAS) <- c("CHR.POS","pvalue")
 head(GWAS)
 dim(GWAS)
-#str(GWAS)
+str(GWAS)
 
 ## use p-value ranges to select subset of GWAS SNPs
 subsetGWAS <-subset(GWAS[complete.cases(GWAS),], pvalue < GWASpvalueRangeSmall & pvalue >= GWASpvalueRangeLarge) #windows system may need && rather than &
@@ -115,23 +106,15 @@ m+n
 ## Print out results
 
 enrichmentPvalue <- (1-phyper(x, m, n, k, lower.tail = T))
-#wcc#cat("Analyzed GWAS: ",gsub("^.*/","",GWASfilePath, perl=TRUE),"\n" )
-#wcc#cat("bagged eQTL significant p-value cutoff is ",sigEQTLpvalueCutoff,"\n")
-#wcc#cat("How many GWAS SNPs with p-values? ",nrow(GWAS[complete.cases(GWAS),]),"\n")
-#wcc#cat("GWAS p-value ranges used to get subset GWAS are from ",GWASpvalueRangeSmall,"to ",GWASpvalueRangeLarge,"\n")
-#wcc#cat("How many subset GWAS SNPs? ",nrow(subsetGWAS),"\n")
-#wcc#cat("How many subset GWAS SNPs not covered by eQTL bags? ",numSubsetGWASnotINeQTL,"\n")
-#wcc#cat("x =",x,"\n")
-#wcc#cat("m =",m,"\n")
-#wcc#cat("n =",n,"\n")
-#wcc#cat("k =",k,"\n")
-#wcc#cat("enrichment Pvalue = ",enrichmentPvalue,"\n")
-
-#cat(gsub("^.*/","",GWASfilePath, perl=TRUE),"\t",sigEQTLpvalueCutoff,"\t",nrow(GWAS[complete.cases(GWAS),]),"\t",GWASpvalueRangeSmall,"\t",GWASpvalueRangeLarge,"\t",nrow(subsetGWAS),"\t",numSubsetGWASnotINeQTL,"\t",x,"\t",m,"\t",n,"\t",k,"\t",enrichmentPvalue,"\n",sep="")
-
-sink(outputFilePath)
-cat(gsub("^.*/","",GWASfilePath, perl=TRUE),"\t",sigEQTLpvalueCutoff,"\t",nrow(GWAS[complete.cases(GWAS),]),"\t",GWASpvalueRangeSmall,"\t",GWASpvalueRangeLarge,"\t",nrow(subsetGWAS),"\t",numSubsetGWASnotINeQTL,"\t",x,"\t",m,"\t",n,"\t",k,"\t",enrichmentPvalue,"\n",sep="")
-sink()
-
-
+cat("Analyzed GWAS: ",gsub("^.*/","",GWASfilePath, perl=TRUE),"\n" )
+cat("bagged eQTL significant p-value cutoff is ",sigEQTLpvalueCutoff,"\n")
+cat("How many GWAS SNPs with p-values? ",nrow(GWAS[complete.cases(GWAS),]),"\n")
+cat("GWAS p-value ranges used to get subset GWAS are from ",GWASpvalueRangeSmall,"to ",GWASpvalueRangeLarge,"\n")
+cat("How many subset GWAS SNPs? ",nrow(subsetGWAS),"\n")
+cat("How many subset GWAS SNPs not covered by eQTL bags? ",numSubsetGWASnotINeQTL,"\n")
+cat("x =",x,"\n")
+cat("m =",m,"\n")
+cat("n =",n,"\n")
+cat("k =",k,"\n")
+cat("enrichment Pvalue = ",enrichmentPvalue,"\n")
 

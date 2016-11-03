@@ -19,3 +19,9 @@ use R-3.3
 
 R
 
+Rscript hypergeometric_test_after_bagging.R "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/" "/home/unix/wcchou/gsapWenChi/gautvik/data/gwas.2.5m/LSBMD_CHRPOS_PVALUE_done.gz" 1e-8 1e-6 1e-1000 test110216.2.txt 
+
+
+
+
+
