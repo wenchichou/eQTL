@@ -11,18 +11,73 @@ args = commandArgs(trailingOnly=TRUE)
 dirBagging <- args[1]
 #GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/data/gwas.2.5m/LSBMD_CHRPOS_PVALUE_done.gz"
 GWASfilePath <- args[2]  
-#sigEQTLpvalueCutoff <- 1e-8 # 10e-8 is 0.0000001; 1e-8 is 0.00000001
-sigEQTLpvalueCutoff <- args[3]
-sigEQTLpvalueCutoff <- as.numeric(as.character(sigEQTLpvalueCutoff))
-#GWASpvalueRangeSmall <- 1e-6
-GWASpvalueRangeSmall <- args[4]
-GWASpvalueRangeSmall <- as.numeric(as.character(GWASpvalueRangeSmall))
-#GWASpvalueRangeLarge <- 1e-1000
-GWASpvalueRangeLarge <- args[5]
-GWASpvalueRangeLarge <- as.numeric(as.character(GWASpvalueRangeLarge))
+#sigGWASpvalueCutoff <- 1e-8 # 10e-8 is 0.0000001; 1e-8 is 0.00000001
+sigGWASpvalueCutoff <- args[3]
+sigGWASpvalueCutoff <- as.numeric(as.character(sigGWASpvalueCutoff))
+#EQTLpvalueRangeSmall <- 1e-6
+EQTLpvalueRangeSmall <- args[4]
+EQTLpvalueRangeSmall <- as.numeric(as.character(EQTLpvalueRangeSmall))
+#EQTLpvalueRangeLarge <- 1e-1000
+EQTLpvalueRangeLarge <- args[5]
+EQTLpvalueRangeLarge <- as.numeric(as.character(EQTLpvalueRangeLarge))
 outputFilePath <- args[6]
 #========================================
 ## 1. Load in bagging files, eQTL and GWAS dataset
+
+#1. Read all GWAS SNPs
+cat("Reading all GWAS SNPs ...\n")
+GWAS <- read.table(GWASfilePath, header=T)
+colnames(GWAS) <- c("CHR.POS","pvalue")
+head(GWAS)
+dim(GWAS)
+
+#2. Read all eQTL bags including all SNPs
+
+
+#3. put GWAS SNPs into LD bags
+
+
+#3. output1 GWASbag.SNP matrix
+#3. output2. GWASbag.smallestPvalue matrix
+
+#4. get significant and non-significant GWAS bags
+sig.GWAS.bag.all <- list()
+sig.GWAS.bag.Pvalue.all <- NULL
+nonSig.GWAS.bag.all <- list()
+nonSig.GWAS.bag.Pvalue.all <- NULL
+
+sig.index <- which(GWASbag.smallestPvalue <= sigGWASpvalueCutoff) 
+sig.GWAS.bag.all <- GWASbag.SNP[sig.index]
+sig.GWAS.bag.Pvalue.all <- GWASbag.smallestPvalue[sig.index]	
+
+nonSig.index <- which(GWASbag.smallestPvalue > sigGWASpvalueCutoff) 
+nonSig.GWAS.bag.all <- GWASbag.SNP[nonSig.index]
+nonSig.GWAS.bag.Pvalue.all <- GWASbag.smallestPvalue[nonSig.index]	
+
+#5. get eQTL bags according to p-value ranges 
+
+#5. output subsetEQTL.bag
+#5. output subsetEQTL.bag.Pvalue
+
+
+
+
+
+
+
+
+
+
+# get significant GWAS SNPs and non-significant SNPs
+#str(GWAS)
+
+
+
+
+
+
+
+
 
 # get significant eQTL bags
 # get non-significant eQTL bags
@@ -39,12 +94,12 @@ for(CHR in seq(1,22,1)){
 	bagSNP.CHR <- y
 	# exclude non-significant eQTL bags
 	bagPvalue.CHR <- read.table(bagPvalue.CHR.path)
-	sig.index <- which(bagPvalue.CHR[,1] < sigEQTLpvalueCutoff) 
+	sig.index <- which(bagPvalue.CHR[,1] < sigGWASpvalueCutoff) 
 	sig.bagSNP.CHR <- bagSNP.CHR[sig.index]
 	sig.bagPvalue.CHR <- bagPvalue.CHR[sig.index,]
 	sig.bagSNP.all <- c(sig.bagSNP.all, sig.bagSNP.CHR)
 	sig.bagPvalue.all <- c(sig.bagPvalue.all, sig.bagPvalue.CHR)
-	nonSig.index <- which(bagPvalue.CHR[,1] >= sigEQTLpvalueCutoff) 
+	nonSig.index <- which(bagPvalue.CHR[,1] >= sigGWASpvalueCutoff) 
 	nonSig.bagSNP.CHR <- bagSNP.CHR[nonSig.index]
 	nonSig.bagPvalue.CHR <- bagPvalue.CHR[nonSig.index,]
 	nonSig.bagSNP.all <- c(nonSig.bagSNP.all, nonSig.bagSNP.CHR)
@@ -74,7 +129,7 @@ dim(GWAS)
 #str(GWAS)
 
 ## use p-value ranges to select subset of GWAS SNPs
-subsetGWAS <-subset(GWAS[complete.cases(GWAS),], pvalue < GWASpvalueRangeSmall & pvalue >= GWASpvalueRangeLarge) #windows system may need && rather than &
+subsetGWAS <-subset(GWAS[complete.cases(GWAS),], pvalue <= sigGWASpvalueCutoff) #windows system may need && rather than &
 head(subsetGWAS)
 dim(subsetGWAS)
 
@@ -116,9 +171,9 @@ m+n
 
 enrichmentPvalue <- (1-phyper(x, m, n, k, lower.tail = T))
 #wcc#cat("Analyzed GWAS: ",gsub("^.*/","",GWASfilePath, perl=TRUE),"\n" )
-#wcc#cat("bagged eQTL significant p-value cutoff is ",sigEQTLpvalueCutoff,"\n")
+#wcc#cat("bagged eQTL significant p-value cutoff is ",sigGWASpvalueCutoff,"\n")
 #wcc#cat("How many GWAS SNPs with p-values? ",nrow(GWAS[complete.cases(GWAS),]),"\n")
-#wcc#cat("GWAS p-value ranges used to get subset GWAS are from ",GWASpvalueRangeSmall,"to ",GWASpvalueRangeLarge,"\n")
+#wcc#cat("GWAS p-value ranges used to get subset GWAS are from ",EQTLpvalueRangeSmall,"to ",EQTLpvalueRangeLarge,"\n")
 #wcc#cat("How many subset GWAS SNPs? ",nrow(subsetGWAS),"\n")
 #wcc#cat("How many subset GWAS SNPs not covered by eQTL bags? ",numSubsetGWASnotINeQTL,"\n")
 #wcc#cat("x =",x,"\n")
@@ -127,10 +182,10 @@ enrichmentPvalue <- (1-phyper(x, m, n, k, lower.tail = T))
 #wcc#cat("k =",k,"\n")
 #wcc#cat("enrichment Pvalue = ",enrichmentPvalue,"\n")
 
-#cat(gsub("^.*/","",GWASfilePath, perl=TRUE),"\t",sigEQTLpvalueCutoff,"\t",nrow(GWAS[complete.cases(GWAS),]),"\t",GWASpvalueRangeSmall,"\t",GWASpvalueRangeLarge,"\t",nrow(subsetGWAS),"\t",numSubsetGWASnotINeQTL,"\t",x,"\t",m,"\t",n,"\t",k,"\t",enrichmentPvalue,"\n",sep="")
+#cat(gsub("^.*/","",GWASfilePath, perl=TRUE),"\t",sigGWASpvalueCutoff,"\t",nrow(GWAS[complete.cases(GWAS),]),"\t",EQTLpvalueRangeSmall,"\t",EQTLpvalueRangeLarge,"\t",nrow(subsetGWAS),"\t",numSubsetGWASnotINeQTL,"\t",x,"\t",m,"\t",n,"\t",k,"\t",enrichmentPvalue,"\n",sep="")
 
 sink(outputFilePath)
-cat(gsub("^.*/","",GWASfilePath, perl=TRUE),"\t",sigEQTLpvalueCutoff,"\t",nrow(GWAS[complete.cases(GWAS),]),"\t",GWASpvalueRangeSmall,"\t",GWASpvalueRangeLarge,"\t",nrow(subsetGWAS),"\t",numSubsetGWASnotINeQTL,"\t",x,"\t",m,"\t",n,"\t",k,"\t",enrichmentPvalue,"\n",sep="")
+cat(gsub("^.*/","",GWASfilePath, perl=TRUE),"\t",sigGWASpvalueCutoff,"\t",nrow(GWAS[complete.cases(GWAS),]),"\t",EQTLpvalueRangeSmall,"\t",EQTLpvalueRangeLarge,"\t",nrow(subsetGWAS),"\t",numSubsetGWASnotINeQTL,"\t",x,"\t",m,"\t",n,"\t",k,"\t",enrichmentPvalue,"\n",sep="")
 sink()
 
 
