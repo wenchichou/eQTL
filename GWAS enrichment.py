@@ -11,27 +11,24 @@ bagSNP_file.head()
 bagPval_file.head()
 
 ## create a panda dataframe table 
-## this table have each row of bagSNPs and index as thier bag number
+## this table have each row of bagSNPs and index as thier bag numbers
 bagnum = sum(1 for row in bagSNP_file)
-df = pd.DataFrame(bagSNP_file, index = bagnum)
-
-
-
-
-
-##1.2  set the first column as each SNPs positions
-
-##1.3  set the second column as the bag index
-
-
-
+bag_df = pd.DataFrame(bagSNP_file, index = bagnum)
 
 # Try to finish the last 3 steps by Friday Taiwan Time.
 ##2.1 import GWAS file
-GWAS_file = open("LSBMD_CHRPOS_PVALUE_done.gz", "r")
+GWAS_file = pd.read_csv("LSBMD_CHRPOS_PVALUE_done.gz", sep='\t', header=None)
+GWAS_df = pd.DataFrame(bagSNP_file)
+GWAS_df.head()
 ##2.2 map each GWAS SNPs with the first column of the dataframe
+for i in range(bagnum):
+  bag_df.loc[[i], :]
+  
 
-##2.3 if mapped, put into each bag list, else drop it
+
+
+##2.3 if map
+# ped, put into each bag list, else drop it
 
 bagSNP_file.close()
 bagPval_file.close()
