@@ -20,15 +20,14 @@ bag_df = pd.DataFrame(bagSNP_file, index = bagnum)
 GWAS_file = pd.read_csv("LSBMD_CHRPOS_PVALUE_done.gz", sep='\t', header=None)
 GWAS_df = pd.DataFrame(bagSNP_file)
 GWAS_df.head()
-##2.2 map each GWAS SNPs with the first column of the dataframe
+##2.2 use each GWAS SNP to search through the SNPs in the bags.
+## If it matches the position, then assign the SNP to the new GWAS bag table
+## else drop it to a list to collect the unmapped GWAS SNPs
 for i in range(bagnum):
   bag_df.loc[[i], :]
-  
 
 
 
-##2.3 if map
-# ped, put into each bag list, else drop it
 
 bagSNP_file.close()
 bagPval_file.close()
