@@ -67,8 +67,10 @@ for i in range(GWAS_df.__len__()):
 GWASbag_df = pd.DataFrame({"SNPs": GWAS_bag_SNP, "bag index": GWAS_bag_idx})
 GWASbag_df
 
-
-
+# The following results are for hypergeometric test
+GWAS_bag_amounts = len(GWASbag_df["bag index"].unique())
+Mapped_GWAS_SNP_amounts = len(GWASbag_df["SNPs"])
+Missed_GWAS_SNP_amounts = len(GWAS_df["SNPs"]) - Mapped_GWAS_SNP_amounts
 
 bagSNP_file.close()
 bagPval_file.close()
