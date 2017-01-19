@@ -1,3 +1,30 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## import eQTL bags in python panda dataframe
 
 ## set the first column as each SNPs positions
