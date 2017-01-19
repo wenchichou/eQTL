@@ -2,8 +2,20 @@
 # Try to finish the first 3 steps by Thursday Taiwan Time.
 ##1.1  import eQTL bags in python panda dataframe
 import pandas as pd
-bagSNP_file = open("bagSNP.chr22.print.txt.gz", "r")
-bagPval_file = open("bagPvalue.chr22.print.txt.gz", "r")
+from pandas import DataFrame
+
+##read in the bag and p value file in tab delimited format
+bagSNP_file = pd.read_csv("bagSNP.chr22.print.txt.gz", sep='\t', header=None)
+bagPval_file = pd.read_csv("bagPvalue.chr22.print.txt.gz", sep='\t', header=None)
+bagSNP_file.head()
+bagPval_file.head()
+
+## create a panda dataframe table 
+## this table have each row of bagSNPs and index as thier bag number
+bagnum = sum(1 for row in bagSNP_file)
+df = pd.DataFrame(bagSNP_file, index = bagnum)
+
+
 
 
 
