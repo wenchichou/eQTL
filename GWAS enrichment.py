@@ -34,7 +34,7 @@ for row in range(GWASrow_num):
     else:
                            GWAS_unmapped.append(GWAS_df[row][0])
                            
-                      
+print "The amount of unmapped GWAS SNPs is:  %s." % len(GWAS_unmapped)                           
                 
 bagSNP_file.close()
 bagPval_file.close()
