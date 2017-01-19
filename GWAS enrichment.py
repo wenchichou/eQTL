@@ -29,7 +29,7 @@ GWAS_unmapped = []
 GWASrow_num = sum(1 for row in GWAS_df)
 for row in range(GWASrow_num):
   for i in range(bagnum):
-    if GWAS_df[row][0] == [bag_df.loc[[i], :]:
+    if GWAS_df[row][0] == bag_df.loc[[i], :]:
                            GWASbag_df.loc[i].append(GWAS_df[row][0])
     else:
                            GWAS_unmapped.append(GWAS_df[row][0])
