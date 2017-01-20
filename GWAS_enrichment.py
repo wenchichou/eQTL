@@ -89,7 +89,7 @@ for idx in range(GWAS_bag_amounts):
     GWASbagidx.append(idx + 1)
 GWAS_bag_result_df = pd.DataFrame({"bag index": GWASbagidx, "P Value": smallestPval})
 
-# assign  smallest p value to each GWAS bag
+
 
 bagSNP_file.close()
 bagPval_file.close()
