@@ -63,11 +63,11 @@ for i in range(GWAS_df.__len__()):
             GWAS_bag_SNP.append(GWAS_df["SNPs"][i])
             GWAS_bag_idx.append(bag_df["bag index"][j])
             break
-        else:
-            unmapped_GWAS_SNP.append(GWAS_df["SNPs"][i])
-        print(j)
 
-    print(i)
+        print("The nth bag SNPs: ",j)
+    unmapped_GWAS_SNP.append(GWAS_df["SNPs"][i])
+
+    print("The nth GWAS SNPs: ", i)
 
 GWASbag_df = pd.DataFrame({"SNPs": GWAS_bag_SNP, "bag index": GWAS_bag_idx})
 GWASbag_df.sort_values(by="bag index")
