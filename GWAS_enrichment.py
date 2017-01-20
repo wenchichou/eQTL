@@ -46,8 +46,8 @@ for line in lines:
 # this table have each row of GWASSNPs and index as their p values
 
 GWAS_df = pd.DataFrame({"SNPs" : GWAS_SNP, "P Value" : GWAS_Pval})
-bag_df.sort_values(by="SNPs")
-GWAS_df
+bag_df = bag_df.sort_values(by="SNPs")
+GWAS_df = GWAS_df.sort_values(by="SNPs")
 
 ## create a dataframe for storing the mapped results
 # Create a Pandas dataframe table
@@ -62,6 +62,7 @@ for i in range(GWAS_df.__len__()):
         if GWAS_df["SNPs"][i] == bag_df["SNPs"][j]:
             GWAS_bag_SNP.append(GWAS_df["SNPs"][i])
             GWAS_bag_idx.append(bag_df["bag index"][j])
+            bag_df.drop(j, inplace= TRUE)
             break
 
         print("The nth bag SNPs: ",j)
@@ -70,7 +71,7 @@ for i in range(GWAS_df.__len__()):
     print("The nth GWAS SNPs: ", i)
 
 GWASbag_df = pd.DataFrame({"SNPs": GWAS_bag_SNP, "bag index": GWAS_bag_idx})
-GWASbag_df.sort_values(by="bag index")
+GWASbag_df = GWASbag_df.sort_values(by="bag index")
 GWASbag_df
 
 # Create a dataframe table for storing (bag index - representative p value) information
