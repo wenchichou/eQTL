@@ -37,8 +37,8 @@ GWAS_Pval = []
 count = 1
 for line in lines:
     p = line.split()
-    GWAS_SNP.append(p[0])
-    GWAS_Pval.append((p[1]))
+    GWAS_SNP.append(p[0].split(":")[1])
+    GWAS_Pval.append(p[1])
     print (count)
     count += 1
 
@@ -56,21 +56,40 @@ GWAS_df
 GWAS_bag_SNP = []
 GWAS_bag_idx = []
 unmapped_GWAS_SNP = []
+
 for i in range(GWAS_df.__len__()):
     for j in range(bag_df.__len__()):
         if GWAS_df["SNPs"][i] == bag_df["SNPs"][j]:
             GWAS_bag_SNP.append(GWAS_df["SNPs"][i])
             GWAS_bag_idx.append(bag_df["bag index"][j])
+            break
         else:
             unmapped_GWAS_SNP.append(GWAS_df["SNPs"][i])
+        print(j)
+
+    print(i)
 
 GWASbag_df = pd.DataFrame({"SNPs": GWAS_bag_SNP, "bag index": GWAS_bag_idx})
+GWASbag_df.sort_values(by="bag index")
 GWASbag_df
 
-# The following results are for hypergeometric test
+# Create a dataframe table for storing (bag index - representative p value) information
+
 GWAS_bag_amounts = len(GWASbag_df["bag index"].unique())
 Mapped_GWAS_SNP_amounts = len(GWASbag_df["SNPs"])
 Missed_GWAS_SNP_amounts = len(GWAS_df["SNPs"]) - Mapped_GWAS_SNP_amounts
+#merge GWASbag_df table with GWAS_df
+GWASbag_df = pd.merge(GWAS_df, GWASbag_df, on="SNPs")
+# for each bag index in merged GWASbag_df , find the smallest p value, assign to the new GWAS_bag_result_df dataframe
+GWASbagidx = []
+smallestPval = []
+for idx in range(GWAS_bag_amounts):
+    df = GWASbag_df["bag index"] == idx + 1
+    smallestPval.append(df["P Value"].min())
+    GWASbagidx.append(idx + 1)
+GWAS_bag_result_df = pd.DataFrame({"bag index": GWASbagidx, "P Value": smallestPval})
+
+# assign  smallest p value to each GWAS bag
 
 bagSNP_file.close()
 bagPval_file.close()
