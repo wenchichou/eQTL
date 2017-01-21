@@ -5,7 +5,7 @@ import numpy as np
 from pandas import DataFrame
 
 #read in  the SNP bag file
-bagSNP_file = open("C:\\Users\\User\\Desktop\\eQTL_project\\python_data\\bagSNP.chr22.print.txt", 'r').read()
+bagSNP_file = open("C:\\Users\\User\\Desktop\\eQTL_project\\bagging\\finished.Bagging.NoMissing\\bagSNP.chr1.print.txt", 'r').read()
 
 # split the strings of the bagSNP by  spaces and newlines
 bagSNP = []
@@ -39,7 +39,7 @@ GWAS_Pval = []
 count = 1
 for line in lines:
     p = line.split()
-    if (p[0].split(":")[0] == '22'):
+    if (p[0].split(":")[0] == '1'):
             GWAS_SNP.append(p[0].split(":")[1])
             GWAS_Pval.append(p[1])
             print (count)
@@ -56,6 +56,9 @@ GWAS_df = GWAS_df.sort_values(by="SNPs")
 # Create a Pandas dataframe table
 # this table have each row of SNPs and index as their bag index
 GWASbag_df = pd.merge(bag_df, GWAS_df, on="SNPs")
+GWASbag_df  = GWASbag_df[~GWASbag_df["P Value"].str.contains("NA")]
+GWASbag_df = GWASbag_df.sort_values(by = "bag index")
+GWASbag_df = GWASbag_df.reset_index(drop=True)
 
 # Create a dataframe table for storing (bag index - representative p value) information
 
@@ -75,7 +78,18 @@ GWAS_bag_result_df
 GWAS_bag_result_df = GWAS_bag_result_df[pd.notnull(GWAS_bag_result_df['P Value'])]
 
 #  space delimited output
-GWAS_bag_result_df['P Value'].to_csv(r'C:\\Users\\User\\Desktop\\eQTL_project\\python_data\\HEIGHT_hg19_bagged_Pval.txt'
+GWAS_bag_result_df['P Value'].to_csv(r'C:\\Users\\User\\Desktop\\eQTL_project\\python_data\\%s_bagPval_Chr1.txt'%"HEIGHT_hg19"
                                      , header=None, index=None, sep=' ', mode='a')
 
+a = GWASbag_df.groupby("bag index")["SNPs"].apply(tuple)
+for line in a:
+    print(line)
+
+with open('C:\\Users\\User\\Desktop\\eQTL_project\\python_data\\%s_bagSNP_Chr1.txt'% "HEIGHT_hg19", 'w') as a_file:
+    for result in a:
+        result = ' '.join(result)
+        a_file.write(result + '\n')
+
+
 GWAS_file.close()
+
