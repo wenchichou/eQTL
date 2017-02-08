@@ -5,8 +5,10 @@
 #========================================
 
 ## take the whole eQTL bags and chr1 of HEIGHT GWAS bags as an example  
-eQTLfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\bagging\\eQTL_finshed_bagging\\"
-GWASfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\GWAS_to_eQTL_hypergeometric_test\\baggingWithGWAS.SNPs\\baggingWithGWAS_SNPs\\HEIGHT_hg19_Pvalue\\HEIGHT_hg19_Pvalue\\"
+#eQTLfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\bagging\\eQTL_finshed_bagging\\"
+eQTLfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/" 
+#GWASfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\GWAS_to_eQTL_hypergeometric_test\\baggingWithGWAS.SNPs\\baggingWithGWAS_SNPs\\HEIGHT_hg19_Pvalue\\HEIGHT_hg19_Pvalue\\"
+GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging.gwas/HEIGHT_hg19_Pvalue/"
 
 ## set eQTL in different bins
 
@@ -29,6 +31,7 @@ sig.eQTL_bagSNP.all <- list()
 sig.eQTL_bagPvalue.all <- NULL
 
 for(CHR in seq(1,22,1)){
+  cat("Reading CHR",CHR,"...\n")
   eQTL_bagSNP.path <- paste(eQTLfilePath,"bagSNP.chr",CHR,".print.txt",sep="")
   eQTL_bagPvalue.path <- paste(eQTLfilePath,"bagPvalue.chr",CHR,".print.txt",sep="")
   x <- scan(eQTL_bagSNP.path, what="", sep="\n")
@@ -65,6 +68,7 @@ nonSig.GWAS_bagSNP.all <- list()
 nonSig.GWAS_bagPvalue.all <- NULL
 bagnum = 0
 for(CHR in seq(1,22,1)){
+  cat("Reading CHR",CHR,"...\n")
   GWAS_bagSNP.path <- paste(GWASfilePath,"gwasbag.chr",CHR,"_bagSNP",sep="")
   GWAS_bagPvalue.path <- paste(GWASfilePath,"gwasbag.chr",CHR,"_bagPvalue",sep="")
   x <- scan(GWAS_bagSNP.path, what="", sep="\n")
@@ -97,22 +101,55 @@ length(nonSig.GWAS_bagPvalue.all)
 
 # list number of SNPs in each significant GWAS bag
 length.sig.GWAS_bagSNP.all <- unlist(do.call(rbind, lapply(sig.GWAS_bagSNP.all, function(x) length(x)))[,1])
+# generate bag index for each SNP
 sig.GWAS_bagSNP.all.expendedBag <- rep(c(1:length(sig.GWAS_bagSNP.all)), length.sig.GWAS_bagSNP.all)
 
 # list number of SNPs in each significant eQTL bag
 length.sig.eQTL_bagSNP.all <- unlist(do.call(rbind, lapply(sig.eQTL_bagSNP.all, function(x) length(x)))[,1])
+# generate bag index for each SNP
 sig.eQTL_bagSNP.all.expendedBag <- rep(c(1:length(sig.eQTL_bagSNP.all)), length.sig.eQTL_bagSNP.all)
 
 # list number of SNPs in each non-significant GWAS bag
 length.nonSig.GWAS_bagSNP.all <- unlist(do.call(rbind, lapply(nonSig.GWAS_bagSNP.all, function(x) length(x)))[,1])
+# generate bag index for each SNP
 nonSig.GWAS_bagSNP.all.expendedBag <- rep(c(1:length(nonSig.GWAS_bagSNP.all)), length.nonSig.GWAS_bagSNP.all)
 
 
-sigGWAS <- unlist(sig.GWAS_bagSNP.all)
+#sigGWAS <- unlist(sig.GWAS_bagSNP.all)
 
 
 ## make sure the order of eQTL and GWAS
-## 
+#for loop all significant eQTL bags
+length(sig.eQTL_bagSNP.all)
+length(sig.eQTL_bagPvalue.all)
+length(sig.GWAS_bagSNP.all)
+length(sig.GWAS_bagPvalue.all)
+length(nonSig.GWAS_bagSNP.all)
+length(nonSig.GWAS_bagPvalue.all)
+
+plot.GWASbag.pvalue<-NULL
+plot.eQTLbag.pvalue<-NULL
+
+for(listIndex in 1:length(sig.eQTL_bagSNP.all)){
+	#plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
+	cat(listIndex,"\n")
+	found.sigGWASbag <- unique(sig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(sig.GWAS_bagSNP.all),nomatch=0)])
+	if(length(found.sigGWASbag) > 0){
+		plot.GWASbag.pvalue[listIndex] <- sig.GWAS_bagPvalue.all[found.sigGWASbag]
+		plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
+	}else{
+		found.nonSigGWASbag <- unique(nonSig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(nonSig.GWAS_bagSNP.all),nomatch=0)])
+		if(length(found.nonSigGWASbag) > 0){
+			plot.GWASbag.pvalue[listIndex] <- nonSig.GWAS_bagPvalue.all[found.nonSigGWASbag]
+			plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
+		}
+	}
+}
+length(sig.eQTL_bagSNP.all)
+length(plot.eQTLbag.pvalue)
+length(plot.GWASbag.pvalue)
+plot(-log10(plot.eQTLbag.pvalue), -log10(plot.GWASbag.pvalue), asp=1)
+dev.off()
 
 
 
