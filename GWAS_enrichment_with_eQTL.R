@@ -1,3 +1,4 @@
+
 ## This file perform enrichment analysis of significant GWAS with eQTL
 
 #========================================
@@ -5,20 +6,20 @@
 #========================================
 
 ## take the whole eQTL bags and chr1 of HEIGHT GWAS bags as an example  
-#eQTLfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\bagging\\eQTL_finshed_bagging\\"
-eQTLfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/" 
-#GWASfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\GWAS_to_eQTL_hypergeometric_test\\baggingWithGWAS.SNPs\\baggingWithGWAS_SNPs\\HEIGHT_hg19_Pvalue\\HEIGHT_hg19_Pvalue\\"
+eQTLfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\bagging\\eQTL_finshed_bagging\\"
+#eQTLfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging/" 
+GWASfilePath <- "C:\\Users\\User\\Desktop\\eQTL_project\\GWAS_to_eQTL_hypergeometric_test\\baggingWithGWAS.SNPs\\baggingWithGWAS_SNPs\\HEIGHT_hg19_Pvalue\\HEIGHT_hg19_Pvalue\\"
 #GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging.gwas/HEIGHT_hg19_Pvalue/"
-GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging.gwas/LSBMD_hg19_Pvalue/"
+#GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging.gwas/LSBMD_hg19_Pvalue/"
 #GWASfilePath <- "/home/unix/wcchou/gsapWenChi/gautvik/results/bagging.gwas/LDL_hg19_Pvalue/"
 
 ## set eQTL in different bins
 
-eQTLpvalueUpperBound <- 1e-2
+eQTLpvalueUpperBound <- 1e-5
 eQTLpvalueUpperBound <- as.numeric(as.character(eQTLpvalueUpperBound))
-eQTLpvalueLowerBound <- 1e-100
+eQTLpvalueLowerBound <- 1e-9
 eQTLpvalueLowerBound <- as.numeric(as.character(eQTLpvalueLowerBound))
-sigGWASpvalueCutoff <- 1e-2
+sigGWASpvalueCutoff <- 1e-4
 sigGWASpvalueCutoff <- as.numeric(as.character(sigGWASpvalueCutoff))
 #outputFilePath <- args[6]
 #========================================
@@ -51,7 +52,7 @@ for(CHR in seq(1,22,1)){
   sig.eQTL_bagPvalue <- eQTL_bagPvalue[sig.index,]
   sig.eQTL_bagSNP.all <- c(sig.eQTL_bagSNP.all, sig.eQTL_bagSNP)
   sig.eQTL_bagPvalue.all <- c(sig.eQTL_bagPvalue.all, sig.eQTL_bagPvalue)
-
+  
 }
 length(sig.eQTL_bagSNP.all)
 length(sig.eQTL_bagPvalue.all)
@@ -187,19 +188,19 @@ plot.GWASbag.pvalue<-NULL
 plot.eQTLbag.pvalue<-NULL
 
 for(listIndex in 1:length(sig.eQTL_bagSNP.all)){
-	#plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
-	cat(listIndex,"\n")
-	found.sigGWASbag <- unique(sig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(sig.GWAS_bagSNP.all),nomatch=0)])
-	if(length(found.sigGWASbag) > 0){
-		plot.GWASbag.pvalue[listIndex] <- sig.GWAS_bagPvalue.all[found.sigGWASbag]
-		plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
-	}else{
-		found.nonSigGWASbag <- unique(nonSig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(nonSig.GWAS_bagSNP.all),nomatch=0)])
-		if(length(found.nonSigGWASbag) > 0){
-			plot.GWASbag.pvalue[listIndex] <- nonSig.GWAS_bagPvalue.all[found.nonSigGWASbag]
-			plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
-		}
-	}
+  #plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
+  cat(listIndex,"\n")
+  found.sigGWASbag <- unique(sig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(sig.GWAS_bagSNP.all),nomatch=0)])
+  if(length(found.sigGWASbag) > 0){
+    plot.GWASbag.pvalue[listIndex] <- sig.GWAS_bagPvalue.all[found.sigGWASbag]
+    plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
+  }else{
+    found.nonSigGWASbag <- unique(nonSig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(nonSig.GWAS_bagSNP.all),nomatch=0)])
+    if(length(found.nonSigGWASbag) > 0){
+      plot.GWASbag.pvalue[listIndex] <- nonSig.GWAS_bagPvalue.all[found.nonSigGWASbag]
+      plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
+    }
+  }
 }
 length(sig.eQTL_bagSNP.all)
 length(plot.eQTLbag.pvalue)
@@ -286,8 +287,6 @@ cat("enrichment Pvalue = ",enrichmentPvalue,"\n")
 
 ## produce scatter plot of matched SNP's GWAS and eQTL P value distribution
 ## sig eQTL overlapped with both sig and non-sig GWAS
-
-
 
 
 
