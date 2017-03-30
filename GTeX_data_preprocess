@@ -1,0 +1,2 @@
+zcat Muscle_Skeletal_Analysis.v6p.all_snpgene_pairs.txt.gz | awk '{print $2, " ", $4}' | gzip > Muscle_Skeletal_Analysis_v1.txt.gz
+zcat Muscle_Skeletal_Analysis_v1.txt.gz | awk -F_ '{print $1," ",$2, " ", $5}' | awk '{print $1":"$2, " ", $4}'| gzip > Muscle_Skeletal_Analysis_chrpos_pval.txt.gz
