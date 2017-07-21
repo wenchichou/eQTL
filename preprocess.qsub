@@ -1,0 +1,23 @@
+#!/bin/bash -l
+
+# we are going to set these paramenters through cmdline (but you can always hardcoded the parameters if they are going to be fixed.:
+
+
+# Now let's keep track of some information just in case anything goes wrong
+echo "=========================================================="
+echo "Starting on : $(date)"
+echo "Running on node : $(hostname)"
+echo "Current directory : $(pwd)"
+echo "Current job ID : $JOB_ID"
+echo "Current job name : $JOB_NAME"
+echo "Task index number : $SGE_TASK_ID"
+echo "=========================================================="
+
+
+
+INFILE=`find /restricted/projectnb/chengcancer/Simon/project/T2D/bulk_RNA-seq/merge_170415_NB501164_170506_NB501164/2mapping/QT/osteoblast/smallest_pval_data/*.cis.mafGT0.05.infoGE0.4.smallestPvalue.osteoblast.eQTL   | head -${SGE_TASK_ID} |tail -1`
+echo "NOW in TASK ${SGE_TASK_ID} : PROCESSING $INFILE ..."
+
+
+
+cat ${INFILE}  | awk '{print $1, " ", $4}'  | gzip > $(basename ${INFILE} .mafGT0.05.infoGE0.4.smallestPvalue.osteoblast.eQTL)_osteoblast_eQTL_position_pval.txt.gz
