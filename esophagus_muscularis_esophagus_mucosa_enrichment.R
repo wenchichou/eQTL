@@ -78,8 +78,8 @@ nonSig.GWAS_bagPvalue.all <- NULL
 bagnum = 0
 for(CHR in seq(1,22,1)){
   cat("Reading CHR",CHR,"...\n")
-  GWAS_bagSNP.path <- paste(GWASfilePath,"//bagSNP.chr",CHR,".print.txt",sep="")
-  GWAS_bagPvalue.path <- paste(GWASfilePath,"//bagPvalue.chr",CHR,".print.txt",sep="")
+  GWAS_bagSNP.path <- paste(GWASfilePath,"//GTeXbag.chr",CHR,"_bagSNP",sep="")
+  GWAS_bagPvalue.path <- paste(GWASfilePath,"//GTeXbag.chr",CHR,"_bagPvalue",sep="")
   x <- scan(GWAS_bagSNP.path, what="", sep="\n")
   y <- strsplit(x, "[[:space:]]+")
   for (bag in 1:length(y)){
@@ -153,8 +153,9 @@ plot.eQTL.GWAS.pvalues <- plot.eQTL.GWAS.pvalues[complete.cases(plot.eQTL.GWAS.p
 dim(plot.eQTL.GWAS.pvalues)
 head(plot.eQTL.GWAS.pvalues)
 # make a plot
-pdf(file=paste("GTeX_",basename(eQTLfilePath), "_", eQTLpvalueUpperBound, "_", eQTLpvalueLowerBound,  "_bone_eQTL_scatter.pdf", sep=""))
-plot(-log10(plot.eQTL.GWAS.pvalues$eQTLbagPvalue), -log10(plot.eQTL.GWAS.pvalues$GWASbagPvalue), asp=1, col=rgb(0,0,0,0.1), pch=19, xlim=c(0,20), ylim=c(0,20), xlab="-log10(GTeX eQTL pvalue)", ylab="-log10(bone eQTL pvalue)", main=paste(basename(eQTLfilePath),"; ",nrow(plot.eQTL.GWAS.pvalues)," overlapped bags\n",length(sig.eQTL_bagPvalue.all)," and ",length(sig.GWAS_bagPvalue.all)+length(nonSig.GWAS_bagPvalue.all)," bags in input eQTL and GWAS",sep=""))
+pdf(file=paste(basename(eQTLfilePath), "_" , basename(GWASfilePath), "_", eQTLpvalueUpperBound, "_", eQTLpvalueLowerBound,  "scatter.pdf", sep=""))
+
+plot(-log10(plot.eQTL.GWAS.pvalues$eQTLbagPvalue), -log10(plot.eQTL.GWAS.pvalues$GWASbagPvalue), asp=1, col=rgb(0,0,0,0.1), pch=19, xlim=c(0,20), ylim=c(0,20), xlab=paste("-log10", " ", basename(eQTLfilePath), "pvalue"), ylab=paste("-log10", " ", basename(GWASfilePath), "pvalue"), main=paste(basename(eQTLfilePath),"; ",nrow(plot.eQTL.GWAS.pvalues)," overlapped bags\n",length(sig.eQTL_bagPvalue.all)," and ",length(sig.GWAS_bagPvalue.all)+length(nonSig.GWAS_bagPvalue.all)," bags in input eQTL and GWAS",sep=""))
 abline(h = 9, col = "blue")
 abline(h = 5, col = "blue")
 abline(h = 7, col = "blue")
@@ -162,55 +163,6 @@ abline(v = 9, col = "red")
 abline(v = 5, col = "red")
 abline(v = 7, col = "red")
 dev.off()
-# wcc020917LoopAllGWAS }
-
-
-
-
-#wccScatterplotFunction1 # get all first elements of the list of non-significant GWAS bag 
-#wccScatterplotFunction1 firstElement_eQTLBag <- unlist(lapply(sig.eQTL_bagSNP.all, `[[`, 1))
-#wccScatterplotFunction1 plot.GWASbag.index1 <- sig.GWAS_bagSNP.all.expendedBag[match(firstElement_eQTLBag, unlist(sig.GWAS_bagSNP.all))]
-#wccScatterplotFunction1 plot.GWASbag.index2 <- nonSig.GWAS_bagSNP.all.expendedBag[match(firstElement_eQTLBag, unlist(nonSig.GWAS_bagSNP.all))]
-#wccScatterplotFunction1 
-#wccScatterplotFunction1 plot.GWASbag.pvalue1 <- plot.GWASbag.index1
-#wccScatterplotFunction1 plot.GWASbag.pvalue1[which(!is.na(plot.GWASbag.index1))] <- sig.GWAS_bagPvalue.all[(plot.GWASbag.index1[!is.na((plot.GWASbag.index1))])]
-#wccScatterplotFunction1 
-#wccScatterplotFunction1 plot.GWASbag.pvalue2 <- plot.GWASbag.index2
-#wccScatterplotFunction1 plot.GWASbag.pvalue2[which(!is.na(plot.GWASbag.index2))] <- nonSig.GWAS_bagPvalue.all[(plot.GWASbag.index2[!is.na((plot.GWASbag.index2))])]
-#wccScatterplotFunction1 
-#wccScatterplotFunction1 plot.GWASbag.pvalue1[is.na(plot.GWASbag.pvalue1)] = plot.GWASbag.pvalue2[is.na(plot.GWASbag.pvalue1)]
-#wccScatterplotFunction1 
-#wccScatterplotFunction1 plot.eQTL.GWAS.pvalues <- data.frame(eQTLbagPvalue=sig.eQTL_bagPvalue.all, GWASbagPvalue=plot.GWASbag.pvalue1)
-#wccScatterplotFunction1 plot.eQTL.GWAS.pvalues <- plot.eQTL.GWAS.pvalues[complete.cases(plot.eQTL.GWAS.pvalues),]
-#wccScatterplotFunction1 head(plot.eQTL.GWAS.pvalues)
-#wccScatterplotFunction1 plot(-log10(plot.eQTL.GWAS.pvalues$eQTLbagPvalue), -log10(plot.eQTL.GWAS.pvalues$GWASbagPvalue), asp=1, xlim=c(0,20), ylim=c(0,20))
-#wccScatterplotFunction1 dev.off()
-
-# prepare two sets of p-values for a scatterplot (pvalue of eQTL and GWAS bag)
-# plot.GWASbag.pvalue<-NULL
-# plot.eQTLbag.pvalue<-NULL
-
-# for(listIndex in 1:length(sig.eQTL_bagSNP.all)){
-#   #plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
-#   cat(listIndex,"\n")
-#   found.sigGWASbag <- unique(sig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(sig.GWAS_bagSNP.all),nomatch=0)])
-#   if(length(found.sigGWASbag) > 0){
-#     plot.GWASbag.pvalue[listIndex] <- sig.GWAS_bagPvalue.all[found.sigGWASbag]
-#     plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
-#   }else{
-#     found.nonSigGWASbag <- unique(nonSig.GWAS_bagSNP.all.expendedBag[match(sig.eQTL_bagSNP.all[[listIndex]], unlist(nonSig.GWAS_bagSNP.all),nomatch=0)])
-#     if(length(found.nonSigGWASbag) > 0){
-#       plot.GWASbag.pvalue[listIndex] <- nonSig.GWAS_bagPvalue.all[found.nonSigGWASbag]
-#       plot.eQTLbag.pvalue[listIndex] <- sig.eQTL_bagPvalue.all[listIndex]
-#     }
-#   }
-# }
-# length(sig.eQTL_bagSNP.all)
-# length(plot.eQTLbag.pvalue)
-# length(plot.GWASbag.pvalue)
-# plot(-log10(plot.eQTLbag.pvalue), -log10(plot.GWASbag.pvalue), asp=1)
-# dev.off()
-
 
 
 ## make sig eQTL list for dataframe
@@ -264,7 +216,7 @@ m+n
 
 enrichmentPvalue <- (1-phyper(x, m, n, k, lower.tail = T))
 cat("Analyzed eQTL: ", basename(eQTLfilePath), "\n")
-cat("Analyzed GWAS: ", "bone_eQTL","\n" )
+cat("Analyzed GWAS: ", basename(GWASfilePath),"\n" )
 cat("sig. GWAS bags p-value cutoff is ",sigGWASpvalueCutoff,"\n")
 #wcc#cat("How many GWAS SNPs with p-values? ",nrow(GWAS[complete.cases(GWAS),]),"\n")
 cat("eQTL bags P value range from ",eQTLpvalueLowerBound,"to ",eQTLpvalueUpperBound,"\n")
